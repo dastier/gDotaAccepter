@@ -1,19 +1,14 @@
 #!/usr/bin/env python3
 import os
 import signal
-from subprocess import Popen, call, check_output
+from subprocess import Popen, check_output
 
 import gi
-import psutil
 from gi.repository import GLib, Gtk, Notify
 
 # LinDota2Accepter
 # apt install xdotool gir1.2-appindicator3-0.1 libnotify-bin
 # sudo apt install python3-psutil
-# sudo apt install gir1.2-appindicator3-0.1
-# sudo apt install xdotool
-
-
 
 
 gi.require_version('Gtk', '3.0')
@@ -51,39 +46,34 @@ class gDotaAccepterIndicator:
         self.menu.append(self.menu_sep)
         self.menu_sep.show()
 
-
         self.item_quit = Gtk.MenuItem(label="Quit")
         self.item_quit.connect('activate', self.quit)
         self.menu.append(self.item_quit)
         self.item_quit.show()
 
-        
         try:
             from gi.repository import AppIndicator3
-        except:
+        except Exception as e:
+            print(e)
             self.APPIND_SUPPORT = 0
 
         if self.APPIND_SUPPORT == 1:
-                self.indicator = AppIndicator3.Indicator.new(
+            self.indicator = AppIndicator3.Indicator.new(
                 self.APPINDICATOR_ID,
                 os.path.abspath(self.ICON),
                 AppIndicator3.IndicatorCategory.OTHER)
-                self.indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
-                self.indicator.set_label("Inactive", "Inactive")
-                self.indicator.set_menu(self.menu)
-                Notify.init(self.APPINDICATOR_ID)
+            self.indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
+            self.indicator.set_label("Inactive", "Inactive")
+            self.indicator.set_menu(self.menu)
+            Notify.init(self.APPINDICATOR_ID)
 
         else:
             self.indicator = Gtk.StatusIcon
             self.indicator.set_from_file(self.ICON)
             self.indicator.connect(self.menu)
-        
-       
         # self.menu.show_all()
-        
-        GLib.timeout_add_seconds(2, self.handler_timeout)
 
-        
+        GLib.timeout_add_seconds(2, self.handler_timeout)
 
     def find_match(self, source):
         """Presses the FIND MATCH button"""
@@ -101,15 +91,15 @@ class gDotaAccepterIndicator:
         print("pid is", self.proc.pid)
         self.ACTIVATED = True
 
-    def activate(self,source):
+    def activate(self, source):
         """ activates scan"""
         if not self.proc:
             self.proc = Popen([self.DOTA_ACC_BIN, "-p"])
             self.ACTIVATED = True
         else:
             print("already running")
-    
-    def deactivate(self,source):
+
+    def deactivate(self, source):
         """ deactivates scan"""
         if self.proc:
             Popen([self.DOTA_ACC_BIN, "-s"])
@@ -117,17 +107,14 @@ class gDotaAccepterIndicator:
             self.proc.kill()
             self.proc.communicate()
             self.ACTIVATED = False
-            self.proc=False
-        return
-        
+            self.proc = False
 
-    def quit(self,source):
+    def quit(self, source):
         if self.proc:
             # os.killpg(os.getpgid(self.proc.pid), signal.SIGTERM)
             self.deactivate(source)
         Notify.uninit()
         Gtk.main_quit()
-
 
     def main(self):
         Gtk.main()
@@ -138,12 +125,9 @@ class gDotaAccepterIndicator:
         # return True so that we get called again
         # returning False will make the timeout stop
         self.get_active_status()
-        
         return True
 
-    
     def get_active_status(self):
-        
         if self.ACTIVATED:
             # print("Activated")
             # self.indicator.set_icon(self.ICONRED)
@@ -151,7 +135,7 @@ class gDotaAccepterIndicator:
             self.indicator.set_label("active", "active")
             self.menu_activate_scan.hide()
             self.menu_deactivate_scan.show()
-            
+
         else:
             # print ("Activate in get_active_status")
             # self.indicator.set_icon(self.ICON)
@@ -159,14 +143,17 @@ class gDotaAccepterIndicator:
             self.indicator.set_label("Inactive", "Inactive")
             self.menu_activate_scan.show()
             self.menu_deactivate_scan.hide()
-    
+
     def is_dota_running(self):
-        output = str(check_output([self.DOTA_ACC_BIN, '-vc'], universal_newlines=True)).strip()
+        output = str(check_output(
+            [self.DOTA_ACC_BIN, '-vc'],
+            universal_newlines=True)).strip()
         print(output)
         if output != 'Dota2 is running':
-            Notify.Notification.new("Gdota Accepter", "Dota is not running", self.ICON).show()
+            Notify.Notification.new(
+                "Gdota Accepter", "Dota is not running",
+                self.ICON).show()
             return False
-        #Notify.Notification.new("Gdota Accepter", "Don't touch your mouse!", self.ICON).show()
         return True
 
 
