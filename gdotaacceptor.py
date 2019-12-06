@@ -21,9 +21,10 @@ class gDotaAccepterIndicator:
         self.APPINDICATOR_ID = "gdota-Acceptor"
         self.APPIND_SUPPORT = 1
         self.CURRDIR = os.path.dirname(os.path.abspath(__file__))
-        self.DOTA_ACC_BIN = os.path.join(self.CURRDIR, 'dotaAccepter.sh')
-        self.ICON = os.path.join(self.CURRDIR, 'Antu_dota.svg')
-        self.ICONRED = os.path.join(self.CURRDIR, 'dota2emble.png')
+        self.ICONS_DIR = os.path.join(self.CURRDIR, 'icons')
+        self.DOTAACC_BIN = os.path.join(self.CURRDIR, 'dotaaccepter.sh')
+        self.ICON = os.path.join(self.ICONS_DIR, 'Antu_dota.svg')
+        self.ICONRED = os.path.join(self.ICONS_DIR, 'dota2emble.png')
         self.proc = False
         self.ACTIVATED = False
 
@@ -83,9 +84,9 @@ class gDotaAccepterIndicator:
 
         if not self.proc:
             print("not proc")
-            self.proc = Popen([self.DOTA_ACC_BIN, "-p"])
+            self.proc = Popen([self.DOTAACC_BIN, "-p"])
 
-        Popen([self.DOTA_ACC_BIN, "-r"])
+        Popen([self.DOTAACC_BIN, "-r"])
 
         print("proc is", self.proc)
         print("pid is", self.proc.pid)
@@ -94,7 +95,7 @@ class gDotaAccepterIndicator:
     def activate(self, source):
         """ activates scan"""
         if not self.proc:
-            self.proc = Popen([self.DOTA_ACC_BIN, "-p"])
+            self.proc = Popen([self.DOTAACC_BIN, "-p"])
             self.ACTIVATED = True
         else:
             print("already running")
@@ -102,7 +103,7 @@ class gDotaAccepterIndicator:
     def deactivate(self, source):
         """ deactivates scan"""
         if self.proc:
-            Popen([self.DOTA_ACC_BIN, "-s"])
+            Popen([self.DOTAACC_BIN, "-s"])
             self.proc.terminate()
             self.proc.kill()
             self.proc.communicate()
@@ -146,7 +147,7 @@ class gDotaAccepterIndicator:
 
     def is_dota_running(self):
         output = str(check_output(
-            [self.DOTA_ACC_BIN, '-vc'],
+            [self.DOTAACC_BIN, '-vc'],
             universal_newlines=True)).strip()
         print(output)
         if output != 'Dota2 is running':
