@@ -4,16 +4,15 @@ import signal
 from subprocess import Popen, check_output
 
 import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('AppIndicator3', '0.1')
+gi.require_version('Notify', '0.7')
 from gi.repository import GLib, Gtk, Notify
+
 
 # LinDota2Accepter
 # apt install xdotool gir1.2-appindicator3-0.1 libnotify-bin
 # sudo apt install python3-psutil
-
-
-gi.require_version('Gtk', '3.0')
-gi.require_version('AppIndicator3', '0.1')
-gi.require_version('Notify', '0.7')
 
 
 class gDotaAccepterIndicator:
